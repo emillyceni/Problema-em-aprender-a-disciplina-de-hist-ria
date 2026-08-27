@@ -78,4 +78,4 @@ erDiagram
 - **Módulo de progresso e pontuação**: registra o desempenho de cada aluno, permitindo que o professor acompanhe a evolução da turma e identifique dificuldades específicas.
 - **Módulo de acessibilidade**: cobre o requisito de cores claras, simples e de fácil entendimento, adaptando o jogo para alunos com deficiência visual ou outras necessidades.
 - **Desafios em formato de quiz e interações lúdicas**: tornam o aprendizado mais intuitivo e engajador, reforçando o conteúdo através da prática e repetição espaçada.
-
+- **Link para o Trello:** https://trello.com/invite/b/6a904838e8e74e40bcb39308/ATTIe9681c31babd2c278316ce89ad6a2d9dFDE12283/jogo-rpg
