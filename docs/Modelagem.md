@@ -8,6 +8,7 @@
 
 O modelo inicial possui as entidades básicas necessárias para o funcionamento do jogo.
 
+```mermaid
 erDiagram
 
     JOGADOR ||--o| PERSONAGEM : possui
@@ -62,51 +63,3 @@ erDiagram
         string status
         int percentual
     }
-
----
-
-## 2. Fluxo Principal do Jogo
-
-flowchart TD
-
-    A([Início]) --> B[Entrar no jogo]
-    B --> C[Escolher época histórica]
-    C --> D[Escolher missão]
-    D --> E[Responder pergunta]
-
-    E --> F{Resposta correta?}
-
-    F -- Sim --> G[Receber recompensa]
-    F -- Não --> H[Exibir explicação]
-
-    H --> E
-    G --> I[Atualizar progresso]
-
-    I --> J{Missão concluída?}
-
-    J -- Não --> E
-    J -- Sim --> K[Salvar progresso]
-
-    K --> L([Fim])
-
----
-
-## 3. Ciclo da Missão
-
-stateDiagram-v2
-
-    [*] --> Disponivel
-    Disponivel --> EmAndamento : Iniciar missão
-    EmAndamento --> Reforco : Resposta incorreta
-    Reforco --> EmAndamento : Nova tentativa
-    EmAndamento --> Concluida : Perguntas concluídas
-    Concluida --> [*]
-
----
-
-## 4. Rastreabilidade
-
-- Local: /docs/ARQUITETURA.md
-- Etapa: Etapa 2 — Planejamento Operacional e Gestão Ágil
-- Status: Em planejamento
-- Próximos passos: implementar o banco de dados, a API e o primeiro protótipo do jogo.
