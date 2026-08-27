@@ -63,3 +63,24 @@ erDiagram
         string status
         int percentual
     }
+flowchart TD
+
+    A([Início]) --> B[Entrar no jogo]
+    B --> C[Escolher época histórica]
+    C --> D[Escolher missão]
+    D --> E[Responder pergunta]
+
+    E --> F{Resposta correta?}
+
+    F -- Sim --> G[Receber recompensa]
+    F -- Não --> H[Exibir explicação]
+
+    H --> E
+    G --> I[Atualizar progresso]
+
+    I --> J{Missão concluída?}
+
+    J -- Não --> E
+    J -- Sim --> K[Salvar progresso]
+
+    K --> L([Fim])
