@@ -1,0 +1,2248 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>AprendeRPG — Uma aventura pela História</title>
+
+<style>
+
+/* =========================================================
+   APRENDERPG
+   ESTILO: PIXEL ART + VINTAGE + HISTÓRIA
+   ========================================================= */
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    min-height: 100vh;
+    font-family: "Courier New", monospace;
+    background:
+        linear-gradient(rgba(38, 55, 48, .15), rgba(38, 55, 48, .15)),
+        #27453d;
+    color: #3b281d;
+    image-rendering: pixelated;
+}
+
+/* =========================================================
+   ESTRUTURA
+   ========================================================= */
+
+.game {
+    width: 100%;
+    max-width: 1250px;
+    min-height: 100vh;
+    margin: auto;
+    padding: 18px;
+}
+
+.screen {
+    display: none;
+}
+
+.screen.active {
+    display: block;
+}
+
+/* =========================================================
+   TOPO
+   ========================================================= */
+
+.topbar {
+    display: grid;
+    grid-template-columns: 240px 1fr 300px;
+    gap: 15px;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.player-card,
+.title-card,
+.menu-card {
+    background: #d7b878;
+    border: 4px solid #563b25;
+    box-shadow:
+        5px 5px 0 #1d2925,
+        inset 0 0 0 3px #efd99b;
+}
+
+.player-card {
+    min-height: 100px;
+    padding: 12px;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.player-avatar {
+    width: 65px;
+    height: 65px;
+    background: #6f8fa0;
+    border: 3px solid #563b25;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 38px;
+}
+
+.player-info h3 {
+    font-size: 15px;
+    margin-bottom: 5px;
+}
+
+.player-info p {
+    font-size: 12px;
+}
+
+.title-card {
+    text-align: center;
+    padding: 12px;
+    background: #ead39a;
+}
+
+.title-card h1 {
+    font-family: Georgia, serif;
+    font-size: 32px;
+    color: #59301f;
+    text-shadow: 2px 2px #c39a5b;
+}
+
+.title-card p {
+    margin-top: 5px;
+    font-size: 11px;
+    font-weight: bold;
+    color: #70412b;
+}
+
+.menu-card {
+    padding: 8px;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 5px;
+}
+
+.menu-button {
+    border: 2px solid #563b25;
+    background: #b78c51;
+    color: #fff3cf;
+    padding: 8px 4px;
+    font-family: inherit;
+    font-weight: bold;
+    font-size: 10px;
+    cursor: pointer;
+}
+
+.menu-button:hover {
+    background: #8d663d;
+    transform: translateY(-2px);
+}
+
+/* =========================================================
+   LAYOUT PRINCIPAL
+   ========================================================= */
+
+.main-grid {
+    display: grid;
+    grid-template-columns: 240px 1fr 270px;
+    gap: 15px;
+}
+
+/* =========================================================
+   PAINÉIS
+   ========================================================= */
+
+.panel {
+    background: #d9bd82;
+    border: 4px solid #563b25;
+    box-shadow:
+        5px 5px 0 #1d2925,
+        inset 0 0 0 3px #f0dca2;
+    padding: 15px;
+}
+
+.panel-title {
+    text-align: center;
+    font-family: Georgia, serif;
+    font-size: 17px;
+    color: #5a3423;
+    border-bottom: 3px double #785231;
+    padding-bottom: 8px;
+    margin-bottom: 12px;
+}
+
+/* =========================================================
+   LINHA DO TEMPO
+   ========================================================= */
+
+.timeline {
+    position: relative;
+}
+
+.timeline::before {
+    content: "";
+    position: absolute;
+    left: 18px;
+    top: 5px;
+    bottom: 5px;
+    width: 5px;
+    background: #785231;
+}
+
+.era {
+    position: relative;
+    margin-bottom: 14px;
+    padding-left: 38px;
+}
+
+.era-dot {
+    position: absolute;
+    left: 9px;
+    top: 10px;
+    width: 22px;
+    height: 22px;
+    border: 3px solid #563b25;
+    background: #e4ca8d;
+    z-index: 2;
+}
+
+.era.unlocked .era-dot {
+    background: #6c8c61;
+}
+
+.era-card {
+    background: #b89156;
+    border: 3px solid #563b25;
+    padding: 10px;
+    color: #fff1c5;
+    cursor: pointer;
+}
+
+.era-card:hover {
+    background: #9f7846;
+}
+
+.era.locked .era-card {
+    opacity: .55;
+    cursor: not-allowed;
+}
+
+.era-title {
+    font-weight: bold;
+    font-size: 12px;
+}
+
+.era-date {
+    font-size: 10px;
+    margin-top: 5px;
+}
+
+/* =========================================================
+   ÁREA DO JOGO
+   ========================================================= */
+
+.scene {
+    min-height: 500px;
+    position: relative;
+    overflow: hidden;
+    border: 5px solid #563b25;
+    background:
+        linear-gradient(
+            rgba(46, 88, 78, .15),
+            rgba(46, 88, 78, .15)
+        ),
+        #7da39b;
+    box-shadow:
+        6px 6px 0 #1d2925,
+        inset 0 0 0 4px #d9bd82;
+}
+
+/* céu */
+
+.scene-sky {
+    height: 55%;
+    background:
+        linear-gradient(
+            #7fb0b2 0%,
+            #b5c9b1 70%,
+            #8b9c66 70%,
+            #6f8757 100%
+        );
+    position: relative;
+}
+
+/* nuvens pixeladas */
+
+.cloud {
+    position: absolute;
+    width: 80px;
+    height: 22px;
+    background: #eee1bd;
+    box-shadow:
+        15px -12px 0 #eee1bd,
+        35px -7px 0 #eee1bd,
+        55px 2px 0 #eee1bd;
+    opacity: .8;
+}
+
+.cloud.one {
+    top: 50px;
+    left: 60px;
+}
+
+.cloud.two {
+    top: 90px;
+    right: 80px;
+    transform: scale(.7);
+}
+
+/* chão */
+
+.scene-ground {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 45%;
+    background:
+        repeating-linear-gradient(
+            0deg,
+            #9a754d 0px,
+            #9a754d 12px,
+            #876545 12px,
+            #876545 15px
+        );
+}
+
+/* estrada */
+
+.path {
+    position: absolute;
+    width: 50%;
+    height: 45%;
+    bottom: -5%;
+    left: 25%;
+    background: #c39b63;
+    clip-path: polygon(35% 0,65% 0,100% 100%,0 100%);
+}
+
+/* igreja */
+
+.building {
+    position: absolute;
+    bottom: 25%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 180px;
+    height: 150px;
+    background: #e4d4a8;
+    border: 5px solid #5c4028;
+}
+
+.building::before {
+    content: "";
+    position: absolute;
+    top: -55px;
+    left: 20px;
+    width: 130px;
+    height: 65px;
+    background: #9a6743;
+    border: 5px solid #5c4028;
+    clip-path: polygon(50% 0,100% 100%,0 100%);
+}
+
+.building-door {
+    position: absolute;
+    bottom: 0;
+    left: 65px;
+    width: 45px;
+    height: 70px;
+    background: #513725;
+    border: 4px solid #3a281c;
+}
+
+.building-window {
+    position: absolute;
+    top: 35px;
+    left: 72px;
+    width: 30px;
+    height: 35px;
+    background: #527a87;
+    border: 4px solid #4c3827;
+}
+
+/* árvore */
+
+.tree {
+    position: absolute;
+    bottom: 25%;
+    width: 50px;
+    height: 110px;
+}
+
+.tree::before {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 20px;
+    width: 15px;
+    height: 55px;
+    background: #64442b;
+}
+
+.tree::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 55px;
+    height: 55px;
+    background: #426d4e;
+    border: 4px solid #31513b;
+    box-shadow:
+        15px -15px 0 #517c56,
+        30px 5px 0 #355c42;
+}
+
+.tree.left {
+    left: 30px;
+}
+
+.tree.right {
+    right: 30px;
+}
+
+/* personagem */
+
+.hero {
+    position: absolute;
+    bottom: 23%;
+    left: 38%;
+    z-index: 10;
+    text-align: center;
+}
+
+.hero-character {
+    font-size: 75px;
+    filter: drop-shadow(4px 5px 0 #443021);
+}
+
+.hero-name {
+    background: #e5c783;
+    border: 3px solid #563b25;
+    padding: 4px 10px;
+    font-size: 11px;
+    font-weight: bold;
+}
+
+/* =========================================================
+   CAIXA DA MISSÃO
+   ========================================================= */
+
+.quest-box {
+    position: absolute;
+    bottom: 15px;
+    left: 15px;
+    right: 15px;
+    background: #e6cd91;
+    border: 4px solid #563b25;
+    padding: 12px;
+    z-index: 20;
+    box-shadow: 4px 4px 0 #3a2b20;
+}
+
+.quest-header {
+    display: flex;
+    justify-content: space-between;
+    border-bottom: 2px solid #785231;
+    padding-bottom: 7px;
+    margin-bottom: 8px;
+}
+
+.quest-header strong {
+    font-family: Georgia, serif;
+    color: #5c3221;
+}
+
+.quest-header span {
+    font-size: 11px;
+}
+
+.quest-box p {
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+/* =========================================================
+   BATALHA
+   ========================================================= */
+
+.battle-area {
+    margin-top: 10px;
+    background: #b18b59;
+    border: 3px solid #563b25;
+    padding: 10px;
+}
+
+.enemy {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 10px;
+}
+
+.enemy-icon {
+    font-size: 50px;
+}
+
+.enemy-info {
+    flex: 1;
+}
+
+.hp-bar {
+    height: 13px;
+    border: 2px solid #563b25;
+    background: #4b3029;
+    margin-top: 5px;
+}
+
+.hp {
+    height: 100%;
+    width: 70%;
+    background: #a94f45;
+}
+
+/* =========================================================
+   PERGUNTAS
+   ========================================================= */
+
+.question-card {
+    background: #ead39a;
+    border: 3px solid #563b25;
+    padding: 12px;
+    margin-top: 10px;
+}
+
+.question {
+    font-weight: bold;
+    line-height: 1.5;
+    font-size: 13px;
+}
+
+.answers {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-top: 12px;
+}
+
+.answer {
+    padding: 10px;
+    border: 3px solid #563b25;
+    background: #b08a56;
+    color: #fff2c7;
+    font-family: inherit;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.answer:hover {
+    background: #80603e;
+}
+
+.answer.correct {
+    background: #63815a;
+}
+
+.answer.wrong {
+    background: #9b5149;
+}
+
+/* =========================================================
+   PAINEL DIREITO
+   ========================================================= */
+
+.npc-box {
+    background: #b18b59;
+    border: 3px solid #563b25;
+    padding: 12px;
+    margin-bottom: 15px;
+}
+
+.npc-avatar {
+    text-align: center;
+    font-size: 55px;
+    margin-bottom: 5px;
+}
+
+.npc-name {
+    text-align: center;
+    font-weight: bold;
+    color: #fff0c2;
+    margin-bottom: 8px;
+}
+
+.npc-text {
+    background: #ead39a;
+    border: 2px solid #563b25;
+    padding: 9px;
+    font-size: 11px;
+    line-height: 1.5;
+}
+
+/* inventário */
+
+.inventory-item {
+    display: flex;
+    gap: 8px;
+    background: #ead39a;
+    border: 2px solid #563b25;
+    padding: 8px;
+    margin-bottom: 7px;
+    font-size: 10px;
+}
+
+/* desempenho */
+
+.performance {
+    background: #ead39a;
+    border: 3px solid #563b25;
+    padding: 12px;
+}
+
+.performance-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 11px;
+    padding: 5px 0;
+    border-bottom: 1px dotted #785231;
+}
+
+/* =========================================================
+   TELAS INTERNAS
+   ========================================================= */
+
+.full-panel {
+    background: #d9bd82;
+    border: 5px solid #563b25;
+    box-shadow:
+        6px 6px 0 #1d2925,
+        inset 0 0 0 4px #f0dca2;
+    padding: 25px;
+}
+
+.big-title {
+    font-family: Georgia, serif;
+    color: #59301f;
+    font-size: 28px;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+/* =========================================================
+   DIÁLOGO
+   ========================================================= */
+
+.dialogue {
+    max-width: 700px;
+    margin: auto;
+}
+
+.dialogue-character {
+    text-align: center;
+    font-size: 90px;
+    margin-bottom: 10px;
+}
+
+.speech {
+    background: #ead39a;
+    border: 4px solid #563b25;
+    padding: 20px;
+    font-size: 14px;
+    line-height: 1.7;
+    position: relative;
+}
+
+.speech::before {
+    content: "";
+    position: absolute;
+    bottom: -15px;
+    left: 50px;
+    border-width: 15px 15px 0 0;
+    border-style: solid;
+    border-color: #563b25 transparent transparent transparent;
+}
+
+/* =========================================================
+   DIÁRIO
+   ========================================================= */
+
+.diary-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 15px;
+}
+
+.diary-item {
+    background: #ead39a;
+    border: 4px solid #563b25;
+    padding: 18px;
+    min-height: 150px;
+}
+
+.diary-icon {
+    font-size: 45px;
+    text-align: center;
+    margin-bottom: 10px;
+}
+
+.diary-item h3 {
+    font-family: Georgia, serif;
+    margin-bottom: 8px;
+}
+
+/* =========================================================
+   RELATÓRIO
+   ========================================================= */
+
+.report-box {
+    max-width: 800px;
+    margin: auto;
+}
+
+.report-stat {
+    background: #ead39a;
+    border: 3px solid #563b25;
+    padding: 15px;
+    margin-bottom: 12px;
+}
+
+.report-bar {
+    height: 18px;
+    background: #594137;
+    border: 2px solid #563b25;
+    margin-top: 8px;
+}
+
+.report-fill {
+    height: 100%;
+    background: #708a5d;
+}
+
+/* =========================================================
+   BOTÕES GERAIS
+   ========================================================= */
+
+.game-button {
+    display: inline-block;
+    padding: 12px 20px;
+    border: 4px solid #563b25;
+    background: #8d663d;
+    color: #fff1c5;
+    font-family: inherit;
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: 4px 4px 0 #34251b;
+    margin-top: 15px;
+}
+
+.game-button:hover {
+    background: #a77c48;
+    transform: translate(2px, 2px);
+    box-shadow: 2px 2px 0 #34251b;
+}
+
+.center {
+    text-align: center;
+}
+
+/* =========================================================
+   RESPONSIVIDADE
+   ========================================================= */
+
+@media(max-width: 950px) {
+
+    .topbar {
+        grid-template-columns: 1fr;
+    }
+
+    .main-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .timeline {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 8px;
+    }
+
+    .timeline::before {
+        display: none;
+    }
+
+    .era {
+        padding: 0;
+    }
+
+    .era-dot {
+        display: none;
+    }
+
+}
+
+@media(max-width: 600px) {
+
+    .game {
+        padding: 8px;
+    }
+
+    .answers {
+        grid-template-columns: 1fr;
+    }
+
+    .timeline {
+        grid-template-columns: 1fr;
+    }
+
+    .title-card h1 {
+        font-size: 25px;
+    }
+
+    .scene {
+        min-height: 650px;
+    }
+
+    .menu-card {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+}
+
+</style>
+</head>
+
+
+<body>
+
+<div class="game">
+
+<!-- ======================================================
+     CABEÇALHO
+     ====================================================== -->
+
+<div class="topbar">
+
+    <div class="player-card">
+
+        <div class="player-avatar">
+            🧑🏻‍🚀
+        </div>
+
+        <div class="player-info">
+
+            <h3>EXPLORADOR</h3>
+
+            <p>⭐ Nível <span id="level">1</span></p>
+
+            <p>XP: <span id="xp">0</span></p>
+
+            <p>❤️ <span id="lives">3</span></p>
+
+        </div>
+
+    </div>
+
+
+    <div class="title-card">
+
+        <h1>AprendeRPG</h1>
+
+        <p>✦ VIAJE • APRENDA • DESCUBRA A HISTÓRIA ✦</p>
+
+    </div>
+
+
+    <div class="menu-card">
+
+        <button class="menu-button" onclick="showScreen('timelineScreen')">
+            🗺️<br>MAPA
+        </button>
+
+        <button class="menu-button" onclick="showScreen('diaryScreen')">
+            📖<br>DIÁRIO
+        </button>
+
+        <button class="menu-button" onclick="showScreen('npcScreen')">
+            🧑‍🏫<br>NPC
+        </button>
+
+        <button class="menu-button" onclick="showReport()">
+            📊<br>RELATÓRIO
+        </button>
+
+    </div>
+
+</div>
+
+
+<!-- ======================================================
+     TELA PRINCIPAL
+     ====================================================== -->
+
+<section id="homeScreen" class="screen active">
+
+<div class="main-grid">
+
+
+<!-- LINHA DO TEMPO -->
+
+<aside class="panel">
+
+    <div class="panel-title">
+        LINHA DO TEMPO
+    </div>
+
+    <div class="timeline">
+
+        <div class="era unlocked">
+
+            <div class="era-dot"></div>
+
+            <div class="era-card"
+                 onclick="startMission(0)">
+
+                <div class="era-title">
+                    ⛵ BRASIL COLONIAL
+                </div>
+
+                <div class="era-date">
+                    1500 — 1822
+                </div>
+
+                <small>
+                    DESBLOQUEADO
+                </small>
+
+            </div>
+
+        </div>
+
+
+        <div id="era2" class="era locked">
+
+            <div class="era-dot"></div>
+
+            <div class="era-card">
+
+                <div class="era-title">
+                    👑 BRASIL IMPERIAL
+                </div>
+
+                <div class="era-date">
+                    1822 — 1889
+                </div>
+
+                <small>
+                    🔒 BLOQUEADO
+                </small>
+
+            </div>
+
+        </div>
+
+
+        <div id="era3" class="era locked">
+
+            <div class="era-dot"></div>
+
+            <div class="era-card">
+
+                <div class="era-title">
+                    🏙️ BRASIL REPÚBLICA
+                </div>
+
+                <div class="era-date">
+                    1889 — ATUALIDADE
+                </div>
+
+                <small>
+                    🔒 BLOQUEADO
+                </small>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <button class="game-button"
+            onclick="startMission(0)">
+        ⚔️ EXPLORAR ERA
+    </button>
+
+</aside>
+
+
+<!-- CENA -->
+
+<main>
+
+<div class="scene">
+
+    <div class="scene-sky">
+
+        <div class="cloud one"></div>
+
+        <div class="cloud two"></div>
+
+        <div class="building">
+
+            <div class="building-window"></div>
+
+            <div class="building-door"></div>
+
+        </div>
+
+        <div class="tree left"></div>
+
+        <div class="tree right"></div>
+
+    </div>
+
+    <div class="scene-ground"></div>
+
+    <div class="path"></div>
+
+
+    <div class="hero">
+
+        <div class="hero-character">
+            🧙🏻‍♀️
+        </div>
+
+        <div class="hero-name">
+            EXPLORADORA
+        </div>
+
+    </div>
+
+
+    <!-- MISSÃO -->
+
+    <div class="quest-box">
+
+        <div class="quest-header">
+
+            <strong>
+                ⚔️ MISSÃO: O PRIMEIRO ENCONTRO
+            </strong>
+
+            <span>
+                PERGUNTA <span id="questionNumber">1</span>/5
+            </span>
+
+        </div>
+
+        <p>
+            Ajude a desvendar os acontecimentos
+            da chegada dos portugueses ao Brasil.
+        </p>
+
+
+        <div class="battle-area">
+
+            <div class="enemy">
+
+                <div class="enemy-icon">
+                    👾
+                </div>
+
+                <div class="enemy-info">
+
+                    <strong>
+                        INIMIGO: DESCONHECIMENTO
+                    </strong>
+
+                    <div class="hp-bar">
+                        <div id="enemyHP"
+                             class="hp"></div>
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="question-card">
+
+                <div class="question"
+                     id="question">
+
+                    Em que ano ocorreu a chegada
+                    dos portugueses ao território
+                    que hoje chamamos de Brasil?
+
+                </div>
+
+
+                <div id="answers"
+                     class="answers">
+
+                    <button class="answer"
+                            onclick="answer(0)">
+                        A) 1492
+                    </button>
+
+                    <button class="answer"
+                            onclick="answer(1)">
+                        B) 1500
+                    </button>
+
+                    <button class="answer"
+                            onclick="answer(2)">
+                        C) 1530
+                    </button>
+
+                    <button class="answer"
+                            onclick="answer(3)">
+                        D) 1822
+                    </button>
+
+                </div>
+
+
+                <div id="feedback"
+                     style="display:none;
+                            margin-top:10px;
+                            padding:10px;
+                            background:#ead39a;
+                            border:3px solid #563b25;">
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+</main>
+
+
+<!-- PAINEL DIREITO -->
+
+<aside>
+
+<div class="panel">
+
+    <div class="panel-title">
+        🧑‍🏫 GUIA HISTÓRICO
+    </div>
+
+    <div class="npc-box">
+
+        <div class="npc-avatar">
+            🧔🏻
+        </div>
+
+        <div class="npc-name">
+            PERO VAZ DE CAMINHA
+        </div>
+
+        <div class="npc-text">
+
+            "Observe os acontecimentos,
+            jovem explorador.
+            A História é feita de pessoas,
+            escolhas e acontecimentos."
+
+        </div>
+
+        <button class="game-button"
+                onclick="showScreen('npcScreen')">
+            💬 CONVERSAR
+        </button>
+
+    </div>
+
+
+    <div class="panel-title">
+        📜 DIÁRIO
+    </div>
+
+    <div class="inventory-item">
+        📜
+        <span>
+            Carta de Pero Vaz
+        </span>
+    </div>
+
+    <div class="inventory-item">
+        🌳
+        <span>
+            Pau-brasil
+        </span>
+    </div>
+
+    <div class="inventory-item">
+        🗺️
+        <span>
+            Mapa antigo
+        </span>
+    </div>
+
+
+    <div class="panel-title">
+        📊 DESEMPENHO
+    </div>
+
+    <div class="performance">
+
+        <div class="performance-row">
+            <span>Acertos</span>
+            <strong id="correctCount">0</strong>
+        </div>
+
+        <div class="performance-row">
+            <span>Erros</span>
+            <strong id="wrongCount">0</strong>
+        </div>
+
+        <div class="performance-row">
+            <span>XP</span>
+            <strong id="performanceXP">0</strong>
+        </div>
+
+    </div>
+
+</div>
+
+</aside>
+
+</div>
+
+</section>
+
+
+<!-- ======================================================
+     TELA DA LINHA DO TEMPO
+     ====================================================== -->
+
+<section id="timelineScreen"
+         class="screen">
+
+<div class="full-panel">
+
+    <h2 class="big-title">
+        🗺️ A GRANDE LINHA DO TEMPO
+    </h2>
+
+    <p class="center">
+        Viaje pelas diferentes épocas da História
+        e desbloqueie novas aventuras.
+    </p>
+
+    <br>
+
+    <div class="timeline">
+
+        <div class="era unlocked">
+
+            <div class="era-card"
+                 onclick="startMission(0)">
+
+                <h3>
+                    ⛵ Brasil Colonial
+                </h3>
+
+                <p>
+                    1500 — 1822
+                </p>
+
+                <br>
+
+                <strong>
+                    ✓ DESBLOQUEADO
+                </strong>
+
+            </div>
+
+        </div>
+
+
+        <div id="timelineEra2"
+             class="era locked">
+
+            <div class="era-card">
+
+                <h3>
+                    👑 Brasil Imperial
+                </h3>
+
+                <p>
+                    1822 — 1889
+                </p>
+
+                <br>
+
+                🔒 COMPLETE A ERA ANTERIOR
+
+            </div>
+
+        </div>
+
+
+        <div id="timelineEra3"
+             class="era locked">
+
+            <div class="era-card">
+
+                <h3>
+                    🏙️ Brasil República
+                </h3>
+
+                <p>
+                    1889 — atualidade
+                </p>
+
+                <br>
+
+                🔒 BLOQUEADO
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <div class="center">
+
+        <button class="game-button"
+                onclick="showScreen('homeScreen')">
+
+            ← VOLTAR AO JOGO
+
+        </button>
+
+    </div>
+
+</div>
+
+</section>
+
+
+<!-- ======================================================
+     TELA DO NPC
+     ====================================================== -->
+
+<section id="npcScreen"
+         class="screen">
+
+<div class="full-panel">
+
+    <h2 class="big-title">
+        🧑‍🏫 ENCONTRO HISTÓRICO
+    </h2>
+
+    <div class="dialogue">
+
+        <div class="dialogue-character">
+            🧔🏻
+        </div>
+
+        <div class="speech">
+
+            <strong>
+                Pero Vaz de Caminha
+            </strong>
+
+            <br><br>
+
+            <span id="dialogueText">
+
+                Seja bem-vindo, jovem aventureiro!
+                Eu posso ajudá-lo a compreender
+                alguns acontecimentos desta época.
+
+            </span>
+
+        </div>
+
+        <div class="center">
+
+            <button class="game-button"
+                    onclick="nextDialogue()">
+
+                💬 CONTINUAR
+
+            </button>
+
+            <button class="game-button"
+                    onclick="speakDialogue()">
+
+                🔊 OUVIR
+
+            </button>
+
+            <button class="game-button"
+                    onclick="showScreen('homeScreen')">
+
+                ← VOLTAR
+
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+</section>
+
+
+<!-- ======================================================
+     DIÁRIO
+     ====================================================== -->
+
+<section id="diaryScreen"
+         class="screen">
+
+<div class="full-panel">
+
+    <h2 class="big-title">
+        📖 DIÁRIO DO CONHECIMENTO
+    </h2>
+
+    <p class="center">
+        Tudo que você aprende durante sua aventura
+        fica registrado aqui.
+    </p>
+
+    <br>
+
+    <div class="diary-grid">
+
+        <div class="diary-item">
+
+            <div class="diary-icon">
+                📜
+            </div>
+
+            <h3>
+                Carta de Pero Vaz
+            </h3>
+
+            <p>
+                Registro relacionado à chegada
+                dos portugueses ao Brasil.
+            </p>
+
+        </div>
+
+
+        <div class="diary-item">
+
+            <div class="diary-icon">
+                🌳
+            </div>
+
+            <h3>
+                Pau-brasil
+            </h3>
+
+            <p>
+                Um dos primeiros recursos
+                explorados pelos portugueses.
+            </p>
+
+        </div>
+
+
+        <div class="diary-item">
+
+            <div class="diary-icon">
+                🗺️
+            </div>
+
+            <h3>
+                Mapa antigo
+            </h3>
+
+            <p>
+                Representação de territórios
+                e rotas marítimas.
+            </p>
+
+        </div>
+
+
+        <div class="diary-item">
+
+            <div class="diary-icon">
+                ⛵
+            </div>
+
+            <h3>
+                Caravela
+            </h3>
+
+            <p>
+                Embarcação utilizada em
+                grandes viagens marítimas.
+            </p>
+
+        </div>
+
+    </div>
+
+
+    <div class="center">
+
+        <button class="game-button"
+                onclick="showScreen('homeScreen')">
+
+            ← VOLTAR
+
+        </button>
+
+    </div>
+
+</div>
+
+</section>
+
+
+<!-- ======================================================
+     RELATÓRIO
+     ====================================================== -->
+
+<section id="reportScreen"
+         class="screen">
+
+<div class="full-panel">
+
+    <h2 class="big-title">
+        📊 RELATÓRIO DE DESEMPENHO
+    </h2>
+
+    <div class="report-box">
+
+        <div class="report-stat">
+
+            <strong>
+                Aproveitamento geral
+            </strong>
+
+            <div class="report-bar">
+
+                <div id="reportFill"
+                     class="report-fill"
+                     style="width:0%">
+                </div>
+
+            </div>
+
+            <p id="reportPercentage">
+                0%
+            </p>
+
+        </div>
+
+
+        <div class="report-stat">
+
+            <h3>
+                📚 Tópicos estudados
+            </h3>
+
+            <br>
+
+            <p>
+                ⛵ Chegada dos portugueses
+            </p>
+
+            <p>
+                🌳 Exploração do pau-brasil
+            </p>
+
+            <p>
+                🧑‍🤝‍🧑 Povos indígenas
+            </p>
+
+            <p>
+                🍬 Economia colonial
+            </p>
+
+        </div>
+
+
+        <div class="report-stat">
+
+            <h3>
+                🧠 Dificuldade identificada
+            </h3>
+
+            <p id="difficultyText">
+
+                Responda algumas perguntas
+                para gerar seu relatório.
+
+            </p>
+
+        </div>
+
+    </div>
+
+
+    <div class="center">
+
+        <button class="game-button"
+                onclick="showScreen('homeScreen')">
+
+            ← VOLTAR
+
+        </button>
+
+    </div>
+
+</div>
+
+</section>
+
+
+</div>
+
+
+<script>
+
+/* =========================================================
+   DADOS DO JOGO
+   ========================================================= */
+
+const questions = [
+
+    {
+        question:
+        "Em que ano ocorreu a chegada dos portugueses ao território que hoje chamamos de Brasil?",
+
+        answers:
+        ["1492", "1500", "1530", "1822"],
+
+        correct: 1,
+
+        explanation:
+        "A chegada da expedição portuguesa liderada por Pedro Álvares Cabral ocorreu em 1500.",
+
+        topic:
+        "Chegada dos portugueses"
+    },
+
+    {
+        question:
+        "Quem já habitava o território brasileiro antes da chegada dos portugueses?",
+
+        answers:
+        [
+            "Povos indígenas",
+            "Somente portugueses",
+            "Somente espanhóis",
+            "Somente franceses"
+        ],
+
+        correct: 0,
+
+        explanation:
+        "Diversos povos indígenas já habitavam o território e possuíam diferentes culturas, línguas e formas de organização.",
+
+        topic:
+        "Povos indígenas"
+    },
+
+    {
+        question:
+        "Qual produto teve grande importância econômica no início da colonização?",
+
+        answers:
+        [
+            "Pau-brasil",
+            "Petróleo",
+            "Automóveis",
+            "Computadores"
+        ],
+
+        correct: 0,
+
+        explanation:
+        "O pau-brasil foi um dos primeiros recursos explorados pelos portugueses.",
+
+        topic:
+        "Pau-brasil"
+    },
+
+    {
+        question:
+        "Qual atividade econômica ganhou grande importância durante o período colonial?",
+
+        answers:
+        [
+            "Produção de açúcar",
+            "Produção de computadores",
+            "Indústria automobilística",
+            "Produção de aviões"
+        ],
+
+        correct: 0,
+
+        explanation:
+        "A produção de açúcar teve grande importância econômica durante o período colonial.",
+
+        topic:
+        "Economia colonial"
+    },
+
+    {
+        question:
+        "Qual país europeu colonizou o Brasil?",
+
+        answers:
+        [
+            "Portugal",
+            "Inglaterra",
+            "Itália",
+            "Alemanha"
+        ],
+
+        correct: 0,
+
+        explanation:
+        "O Brasil permaneceu como colônia de Portugal durante grande parte do período colonial.",
+
+        topic:
+        "Colonização portuguesa"
+    }
+
+];
+
+
+/* =========================================================
+   ESTADO DO JOGO
+   ========================================================= */
+
+let currentQuestion = 0;
+
+let xp = 0;
+
+let lives = 3;
+
+let correct = 0;
+
+let wrong = 0;
+
+let enemyHP = 70;
+
+let dialogueIndex = 0;
+
+
+/* =========================================================
+   DIÁLOGOS
+   ========================================================= */
+
+const dialogues = [
+
+    "Seja bem-vindo, jovem aventureiro! Eu posso ajudá-lo a compreender alguns acontecimentos desta época.",
+
+    "A História não é apenas uma lista de datas. Ela é formada por pessoas, culturas, conflitos e escolhas.",
+
+    "Quando você errar uma pergunta, não se preocupe. Leia a explicação e tente novamente.",
+
+    "Agora siga sua jornada. Talvez você descubra algo que ficará registrado para sempre em seu diário."
+
+];
+
+
+/* =========================================================
+   TROCAR DE TELA
+   ========================================================= */
+
+function showScreen(id) {
+
+    document.querySelectorAll(".screen")
+        .forEach(screen => {
+
+            screen.classList.remove("active");
+
+        });
+
+    document.getElementById(id)
+        .classList.add("active");
+
+}
+
+
+/* =========================================================
+   INICIAR MISSÃO
+   ========================================================= */
+
+function startMission(era) {
+
+    currentQuestion = 0;
+
+    lives = 3;
+
+    enemyHP = 70;
+
+    document.getElementById("enemyHP")
+        .style.width = enemyHP + "%";
+
+    showScreen("homeScreen");
+
+    loadQuestion();
+
+}
+
+
+/* =========================================================
+   CARREGAR PERGUNTA
+   ========================================================= */
+
+function loadQuestion() {
+
+    if (currentQuestion >= questions.length) {
+
+        finishMission();
+
+        return;
+
+    }
+
+    const q =
+        questions[currentQuestion];
+
+    document.getElementById("question")
+        .textContent = q.question;
+
+    document.getElementById("questionNumber")
+        .textContent = currentQuestion + 1;
+
+    const container =
+        document.getElementById("answers");
+
+    container.innerHTML = "";
+
+    q.answers.forEach((answerText, index) => {
+
+        const button =
+            document.createElement("button");
+
+        button.className = "answer";
+
+        button.textContent =
+            String.fromCharCode(65 + index)
+            + ") "
+            + answerText;
+
+        button.onclick =
+            () => answer(index);
+
+        container.appendChild(button);
+
+    });
+
+    document.getElementById("feedback")
+        .style.display = "none";
+
+}
+
+
+/* =========================================================
+   RESPONDER
+   ========================================================= */
+
+function answer(selected) {
+
+    const q =
+        questions[currentQuestion];
+
+    const buttons =
+        document.querySelectorAll(".answer");
+
+    buttons.forEach(button => {
+
+        button.disabled = true;
+
+    });
+
+
+    const feedback =
+        document.getElementById("feedback");
+
+
+    if (selected === q.correct) {
+
+        /* RF01
+           RESPOSTA CORRETA = ATAQUE */
+
+        correct++;
+
+        xp += 20;
+
+        enemyHP -= 20;
+
+        if (enemyHP < 0) {
+            enemyHP = 0;
+        }
+
+        document.getElementById("enemyHP")
+            .style.width = enemyHP + "%";
+
+
+        feedback.style.display = "block";
+
+        feedback.innerHTML = `
+            ⚔️ <strong>ATAQUE REALIZADO!</strong><br><br>
+
+            Você respondeu corretamente
+            e causou dano ao
+            <strong>Desconhecimento</strong>!
+
+            <br><br>
+
+            ⭐ +20 XP
+        `;
+
+        buttons[selected]
+            .classList.add("correct");
+
+    }
+
+    else {
+
+        /* RF06
+           FEEDBACK EDUCATIVO IMEDIATO */
+
+        wrong++;
+
+        lives--;
+
+        feedback.style.display = "block";
+
+        feedback.innerHTML = `
+            ❌ <strong>AINDA NÃO!</strong><br><br>
+
+            ${q.explanation}
+
+            <br><br>
+
+            ❤️ Vidas restantes: ${lives}
+
+            <br><br>
+
+            <strong>
+            Você poderá tentar novamente.
+            </strong>
+        `;
+
+        buttons[selected]
+            .classList.add("wrong");
+
+    }
+
+
+    updateInterface();
+
+
+    setTimeout(() => {
+
+        if (lives <= 0) {
+
+            alert(
+                "Você ficou sem vidas. " +
+                "Leia as explicações e tente novamente!"
+            );
+
+            lives = 3;
+
+            loadQuestion();
+
+            return;
+
+        }
+
+
+        currentQuestion++;
+
+        loadQuestion();
+
+        saveGame();
+
+    }, 3000);
+
+}
+
+
+/* =========================================================
+   FINALIZAR MISSÃO
+   ========================================================= */
+
+function finishMission() {
+
+    xp += 50;
+
+    document.getElementById("era2")
+        .classList.remove("locked");
+
+    document.getElementById("era2")
+        .classList.add("unlocked");
+
+    document.getElementById("timelineEra2")
+        .classList.remove("locked");
+
+    document.getElementById("timelineEra2")
+        .classList.add("unlocked");
+
+    alert(
+        "🏆 MISSÃO CONCLUÍDA!\n\n" +
+        "+50 XP\n\n" +
+        "👑 Nova era histórica desbloqueada!"
+    );
+
+    updateInterface();
+
+    saveGame();
+
+}
+
+
+/* =========================================================
+   ATUALIZAR INTERFACE
+   ========================================================= */
+
+function updateInterface() {
+
+    document.getElementById("xp")
+        .textContent = xp;
+
+    document.getElementById("performanceXP")
+        .textContent = xp;
+
+    document.getElementById("lives")
+        .textContent = lives;
+
+    document.getElementById("correctCount")
+        .textContent = correct;
+
+    document.getElementById("wrongCount")
+        .textContent = wrong;
+
+
+    const level =
+        Math.floor(xp / 100) + 1;
+
+    document.getElementById("level")
+        .textContent = level;
+
+}
+
+
+/* =========================================================
+   NPC
+   ========================================================= */
+
+function nextDialogue() {
+
+    dialogueIndex++;
+
+    if (dialogueIndex >= dialogues.length) {
+
+        dialogueIndex = 0;
+
+    }
+
+    document.getElementById("dialogueText")
+        .textContent =
+        dialogues[dialogueIndex];
+
+}
+
+
+function speakDialogue() {
+
+    const text =
+        document.getElementById("dialogueText")
+            .textContent;
+
+    if ("speechSynthesis" in window) {
+
+        speechSynthesis.cancel();
+
+        const speech =
+            new SpeechSynthesisUtterance(text);
+
+        speech.lang = "pt-BR";
+
+        speech.rate = .9;
+
+        speechSynthesis.speak(speech);
+
+    }
+
+}
+
+
+/* =========================================================
+   RELATÓRIO
+   ========================================================= */
+
+function showReport() {
+
+    const total =
+        correct + wrong;
+
+    let percentage = 0;
+
+    if (total > 0) {
+
+        percentage =
+            Math.round(
+                (correct / total) * 100
+            );
+
+    }
+
+
+    document.getElementById("reportFill")
+        .style.width =
+        percentage + "%";
+
+
+    document.getElementById("reportPercentage")
+        .textContent =
+        percentage + "% de aproveitamento";
+
+
+    if (total === 0) {
+
+        document.getElementById("difficultyText")
+            .textContent =
+            "Responda algumas perguntas para descobrir seus pontos fortes e os conteúdos que precisam de mais prática.";
+
+    }
+
+    else if (percentage >= 80) {
+
+        document.getElementById("difficultyText")
+            .textContent =
+            "Você demonstrou facilidade nos conteúdos trabalhados. O sistema poderá apresentar desafios mais complexos.";
+
+    }
+
+    else if (percentage < 50) {
+
+        document.getElementById("difficultyText")
+            .textContent =
+            "Alguns conteúdos precisam de mais prática. Revise o Diário do Conhecimento e tente novamente.";
+
+    }
+
+    else {
+
+        document.getElementById("difficultyText")
+            .textContent =
+            "Seu desempenho está em desenvolvimento. Continue explorando e respondendo às missões.";
+
+    }
+
+
+    showScreen("reportScreen");
+
+}
+
+
+/* =========================================================
+   SALVAMENTO OFFLINE
+   RNF05
+   ========================================================= */
+
+function saveGame() {
+
+    const data = {
+
+        xp: xp,
+
+        lives: lives,
+
+        correct: correct,
+
+        wrong: wrong,
+
+        currentQuestion: currentQuestion
+
+    };
+
+    localStorage.setItem(
+        "aprendeRPG_save",
+        JSON.stringify(data)
+    );
+
+}
+
+
+/* =========================================================
+   CARREGAMENTO OFFLINE
+   ========================================================= */
+
+function loadGame() {
+
+    const saved =
+        localStorage.getItem(
+            "aprendeRPG_save"
+        );
+
+    if (!saved) {
+
+        updateInterface();
+
+        return;
+
+    }
+
+
+    const data =
+        JSON.parse(saved);
+
+    xp =
+        data.xp || 0;
+
+    lives =
+        data.lives || 3;
+
+    correct =
+        data.correct || 0;
+
+    wrong =
+        data.wrong || 0;
+
+    currentQuestion =
+        data.currentQuestion || 0;
+
+    updateInterface();
+
+}
+
+
+/* =========================================================
+   INICIALIZAÇÃO
+   ========================================================= */
+
+loadGame();
+
+</script>
+
+</body>
+</html>
