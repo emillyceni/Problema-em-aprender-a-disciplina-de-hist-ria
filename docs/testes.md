@@ -17,6 +17,27 @@
 | RNF04 | Verificar tempo de carregamento | Aprovado |
 | RNF05 | Testar funcionamento offline | Aprovado |
 | RNF06 | Verificar armazenamento de dados | Em desenvolvimento |
+## Validação do MVP
+
+### Testes realizados
+
+O MVP foi executado e testado após a publicação no GitHub Pages.
+
+| Funcionalidade | Resultado |
+|---|---|
+| Iniciar o jogo | Aprovado |
+| Iniciar missão | Aprovado |
+| Responder perguntas | Aprovado |
+| Feedback após erro | Aprovado |
+| Concluir missão | Aprovado |
+| Linha do tempo | Aprovado |
+| Diálogos com NPCs | Aprovado |
+| Diário/Inventário | Aprovado |
+
+
+### Resultado da validação
+
+As principais funcionalidades previstas para o MVP foram testadas e apresentaram funcionamento conforme planejado.
 
 ## Resultado
 
